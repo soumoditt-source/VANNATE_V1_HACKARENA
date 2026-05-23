@@ -101,11 +101,19 @@ export default function VerificationFlowPage() {
       }
     }
     
-    const noteDenoms = [2000, 500, 200, 100, 50, 20, 10, 5, 2, 1];
-    for (const denom of noteDenoms) {
-      if (text.includes(denom.toString())) {
-        amount = denom;
-        break;
+    if (amount === 0) {
+      const noteDenoms = [2000, 500, 200, 100, 50, 20, 10, 5, 2, 1];
+      let maxDenom = 0;
+      for (const denom of noteDenoms) {
+        const regex = new RegExp(`(^|\\D)${denom}(\\D|$)`, 'g');
+        if (regex.test(text)) {
+          if (denom > maxDenom) {
+            maxDenom = denom;
+          }
+        }
+      }
+      if (maxDenom > 0) {
+        amount = maxDenom;
       }
     }
     
