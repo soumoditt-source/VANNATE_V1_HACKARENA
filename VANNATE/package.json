@@ -4,22 +4,35 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "launch": "node launch.js",
     "build": "next build",
     "start": "next start",
     "lint": "eslint ."
   },
   "dependencies": {
+    "@react-google-maps/api": "^2.20.8",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.1",
+    "@supabase/supabase-js": "^2.106.1",
+    "@tensorflow/tfjs": "^4.22.0",
+    "firebase": "^12.13.0",
     "framer-motion": "^12.38.0",
+    "leaflet": "^1.9.4",
     "lucide-react": "^1.14.0",
     "next": "^16.2.6",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
-    "react-qr-code": "^2.0.21"
+    "react-leaflet": "^5.0.0",
+    "react-qr-code": "^2.0.21",
+    "resend": "^6.12.3",
+    "three": "^0.184.0"
   },
   "devDependencies": {
+    "@types/leaflet": "^1.9.21",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
+    "@types/three": "^0.184.1",
     "eslint": "^9.39.1",
     "eslint-config-next": "^16.2.6",
     "typescript": "^5.9.3"

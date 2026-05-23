@@ -1,4 +1,5 @@
-﻿import { activeDonation } from "@/lib/data";
+import { activeDonation } from "@/lib/data";
+import DynamicMap from "@/components/ui/DynamicMap";
 
 export default async function TrackPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -33,20 +34,7 @@ export default async function TrackPage({ params }: { params: Promise<{ id: stri
               </div>
               <div className="panel">
                 <div className="panel-head"><h3>Live Route Map</h3></div>
-                <div className="route-map" style={{ minHeight: 260 }}>
-                  <div className="map-grid" />
-                  <svg viewBox="0 0 500 260" preserveAspectRatio="none">
-                    <path className="river" d="M0,170 Q120,155 250,170 Q380,185 500,170" />
-                    <path className="route-line" d="M80,60 Q180,80 250,140 Q320,195 400,210" />
-                    <circle cx="80" cy="60" r="9" className="map-pulse hub" />
-                    <circle cx="250" cy="140" r="13" className="map-pulse live" />
-                    <circle cx="400" cy="210" r="9" className="map-pulse dest" />
-                    <text x="90" y="55" className="map-label">Donor Kiosk</text>
-                    <text x="260" y="134" className="map-label" fill="#fcd34d">En Route</text>
-                    <text x="408" y="205" className="map-label">Shelter</text>
-                  </svg>
-                  <div className="map-stat-box"><span>ETA</span><strong style={{ color: "var(--gold)" }}>{donation.eta}</strong></div>
-                </div>
+                <DynamicMap mode="track" trackingId={id} height="260px" />
               </div>
             </div>
             <div className="panel">

@@ -59,32 +59,60 @@ export function retrieveContext(query: string, topK = 4): RetrievalHit[] {
 
 export function buildLocalAnswer(message: string, role: string, hits: RetrievalHit[]) {
   const lower = message.toLowerCase();
-  const sourceLine = hits.map((hit) => hit.title).join(", ");
+
+  // Natural greeting handling
+  if (lower === "hi" || lower === "hello" || lower.includes("hello vanna")) {
+    return "Namaskar! I am Vanna, your AI humanitarian assistant. I can help with donations, blood emergencies, NGO reports, crisis response, and translation. How can I serve humanity today?";
+  }
 
   if (lower.includes("blood")) {
-    return `For a blood emergency, Vannate should first identify the blood group, hospital, radius, and eligibility window. The MVP can show the nearest verified donor pool, trigger emergency push alerts, and create a hospital-confirmed request ID. Based on the retrieved context, prioritize rare groups, route by distance, and log every response with beneficiary-safe privacy controls. Sources used: ${sourceLine}.`;
+    return `For a blood emergency, I can identify the blood group, hospital radius, and eligibility window. I will show the nearest verified donor pool and trigger push alerts.`;
   }
 
   if (lower.includes("grant") || lower.includes("report") || lower.includes("proposal")) {
-    return `For NGO automation, create the report from verified campaign data, donation logs, volunteer attendance, beneficiary confirmations, and media proof. The copilot should draft a clean impact narrative, add measurable KPIs, cite source records, and flag missing compliance data instead of inventing it. This is where Vannate returns 10+ hours per week to NGOs. Sources used: ${sourceLine}.`;
+    return `I can help you draft a clean impact narrative with measurable KPIs, pulling directly from verified campaign data and donation logs to save you time.`;
   }
 
   if (lower.includes("fraud") || lower.includes("trust") || lower.includes("score")) {
-    return `Use the Vannate Trust Score as the visible trust layer: government registration, activity consistency, beneficiary confirmation, media proof quality, reviews, and anomaly resistance combine into a 0-1000 score. Below 600 routes to review; below 400 suspends until human moderation. Sources used: ${sourceLine}.`;
+    return `The Vannate Trust Score ranges from 0-1000 based on government registration, activity consistency, and media proof. Scores below 600 trigger a review to ensure absolute transparency.`;
   }
 
   if (lower.includes("disaster") || lower.includes("flood") || lower.includes("crisis")) {
-    return `Activate Emergency Command Center: geofence the crisis, rank needs by severity, match nearby surplus and volunteers, display route proof, and forecast shortages for the next 24 hours. For the Kolkata demo, Howrah Sector 4 is the strongest live scenario because the deck already contains flood, water, doctors, food kits, tarpaulin, and insulin shortage signals. Sources used: ${sourceLine}.`;
+    return `Activating Emergency Protocol: I am geofencing the crisis area to match nearby surplus and volunteers. What specific supplies do you need dispatched?`;
   }
 
-  if (lower.includes("api") || lower.includes("deploy") || lower.includes("free")) {
-    return `The prototype is free-by-default: Next.js fullstack routes, local RAG, browser voice, optional Ollama, and static map visuals. Add Supabase/Neon for persistence, Qdrant for vector search, Firebase for notifications, Resend for email, Razorpay/Stripe test mode for payments, and Mapbox/Google only if you receive keys. Sources used: ${sourceLine}.`;
-  }
-
-  return `Vannate should answer this through a trust-first humanitarian workflow: identify the actor, retrieve verified context, create a QR-backed record, attach geo/time proof, route the task to the right AI agent, and collect human feedback for RLHF. For the ${role} view, the most relevant retrieved context is: ${hits.map((hit) => hit.body).join(" ")}`;
+  // Conversational fallback using RAG data naturally
+  const bestHit = hits.length > 0 ? hits[0].body : "I am constantly learning new humanitarian protocols.";
+  return `Based on my knowledge of the Vannate network: ${bestHit} Is there a specific crisis or NGO you'd like me to look into?`;
 }
 
 export async function generateWithOptionalOllama(prompt: string) {
+  // First, check for Mistral API (Free tier cloud LLM) to enable true Multilingual Translation
+  const mistralKey = process.env.MISTRAL_API_KEY;
+  if (mistralKey) {
+    try {
+      const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${mistralKey}`,
+        },
+        body: JSON.stringify({
+          model: "mistral-small-latest",
+          messages: [{ role: "user", content: prompt }],
+          temperature: 0.7,
+        }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return data.choices?.[0]?.message?.content?.trim() || null;
+      }
+    } catch (e) {
+      console.warn("Mistral API failed, falling back to local...", e);
+    }
+  }
+
+  // Fallback to local Ollama if Mistral is not configured or fails
   const baseUrl = process.env.OLLAMA_BASE_URL;
   const model = process.env.OLLAMA_MODEL || "llama3.1";
 

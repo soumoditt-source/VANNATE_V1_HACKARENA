@@ -1,7 +1,11 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
+
 import Link from "next/link";
-import MorphingBackground from "@/components/ui/MorphingBackground";
-import IntroSequence from "@/components/ui/IntroSequence";
+import ClientTopology from "@/components/ui/ClientTopology";
+import IntroRedirect from "@/components/layout/IntroRedirect";
+import DynamicInteractive3DScroll from "@/components/ui/DynamicInteractive3DScroll";
+import FallingIconsPhysics from "@/components/ui/FallingIconsPhysics";
+import ClientGreeting from "@/components/ui/ClientGreeting";
 
 export const metadata: Metadata = {
   title: "Vannate | AI Humanitarian Operating System",
@@ -9,8 +13,8 @@ export const metadata: Metadata = {
 };
 
 const pillars = [
-  { icon: "T", title: "Trust Engine", desc: "Live VTS score built from registration, activity, confirmations, and fraud signals.", href: "/analytics" },
-  { icon: "D", title: "Donation Tracking", desc: "Every rupee tracked from donor scan to beneficiary handoff with QR proof.", href: "/dashboard" },
+  { icon: "T", title: "Trust Engine", desc: "Live VTS score built from registration, activity, confirmations, and fraud signals.", href: "/trust" },
+  { icon: "D", title: "Donation Tracking", desc: "Every rupee tracked from donor scan to beneficiary handoff with QR proof.", href: "/track" },
   { icon: "C", title: "Crisis Response", desc: "Heatmaps, dispatch, shortage forecasting for any disaster. Real-time.", href: "/crisis" },
   { icon: "B", title: "Smart Blood Bank", desc: "Geo-matched rare donors, hospital alerts, eligibility AI. Zero delays.", href: "/blood" },
   { icon: "V", title: "Volunteer Network", desc: "Skill-matched dispatch for every mission. Track reliability in real time.", href: "/volunteer" },
@@ -37,11 +41,12 @@ const steps = [
 export default function HomePage() {
   return (
     <>
-      <IntroSequence />
+      <IntroRedirect />
+      <ClientGreeting />
 
       {/* Hero */}
       <section className="page-hero" style={{ minHeight: "92vh", position: "relative", overflow: "hidden", display: "flex", alignItems: "center" }}>
-        <MorphingBackground />
+        <ClientTopology />
         <div className="page-hero-inner" style={{ position: "relative", zIndex: 2 }}>
           <div className="hero-eyebrow">
             <span />
@@ -59,11 +64,14 @@ export default function HomePage() {
             <span>The world is one family &mdash; ancient Sanskrit wisdom, made digital.</span>
           </div>
           <div style={{ display: "flex", gap: 14, marginTop: 36, flexWrap: "wrap" }}>
-            <Link href="/dashboard" className="btn-primary" style={{ fontSize: "1rem", padding: "14px 28px" }}>Start Giving &rarr;</Link>
+            <Link href="/portal" className="btn-primary" style={{ fontSize: "1rem", padding: "14px 28px" }}>Start Giving &rarr;</Link>
             <Link href="/copilot" className="btn-ghost" style={{ fontSize: "1rem", padding: "14px 28px" }}>Talk to Vanna AI</Link>
           </div>
         </div>
       </section>
+
+      {/* Physics Falling Icons Interaction */}
+      <FallingIconsPhysics />
 
       {/* Stats Bar */}
       <section style={{ background: "var(--glass)", borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)", padding: "28px 0" }}>
@@ -148,8 +156,8 @@ export default function HomePage() {
           <h2>Ready to Build a More Compassionate World?</h2>
           <p>Join 317 verified NGOs, 12,000+ donors, and 124 active volunteers already on the Vannate network.</p>
           <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
-            <Link href="/dashboard" className="btn-primary" style={{ fontSize: "1rem", padding: "14px 32px" }}>Get Started Free &rarr;</Link>
-            <Link href="/ngo" className="btn-ghost" style={{ fontSize: "1rem", padding: "14px 32px" }}>For NGOs</Link>
+            <Link href="/login" className="btn-primary" style={{ fontSize: "1rem", padding: "14px 32px" }}>Get Started Free &rarr;</Link>
+            <Link href="/login" className="btn-ghost" style={{ fontSize: "1rem", padding: "14px 32px" }}>For NGOs</Link>
           </div>
         </div>
       </section>

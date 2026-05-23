@@ -10,7 +10,7 @@ Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'd:/VANANATE 1
 
 # 3. Start C++ (mock if no compiler)
 Write-Host "Initializing C++ Telemetry Engine..."
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'd:/VANANATE 1.0/VANNATE/backend/cpp_engine'; if (Get-Command g++ -ErrorAction SilentlyContinue) { g++ main.cpp -o engine.exe; ./engine.exe } else { Write-Host 'No C++ compiler found. Simulating C++ engine...'; python -c "import time; print('Vannate C++ Telemetry Engine Simulated'); time.sleep(99999)" }" -WindowStyle Minimized
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'd:/VANANATE 1.0/VANNATE/backend/cpp_engine'; if (Get-Command g++ -ErrorAction SilentlyContinue) { g++ main.cpp -o engine.exe; ./engine.exe } else { Write-Host 'No C++ compiler found. Simulating C++ engine...'; python -c \`"import time; print('Vannate C++ Telemetry Engine Simulated'); time.sleep(99999)\`" }" -WindowStyle Minimized
 
 # 4. Start Next.js Frontend
 Write-Host "Starting Next.js Frontend on Port 3000..."

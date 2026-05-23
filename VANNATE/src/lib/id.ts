@@ -54,10 +54,18 @@ export function generateUserIdentity(mode: AccountMode = "citizen", name = "Vann
     scope: ["identity.verify", "donation.track", "incident.report"],
   };
 
+  const qrPayloadStr = JSON.stringify(qrPayload);
+
   return {
     accountId,
     publicKey,
-    qrPayload: JSON.stringify(qrPayload),
+    qrPayload: qrPayloadStr,
+    qrImageUrl: `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrPayloadStr)}&color=14b8a6&bgcolor=020617`,
     qrVersion: "VANNATE-QR-v1",
   };
+}
+
+export function getQrCodeUrl(data: string, size = "200x200", color = "14b8a6", bgcolor = "020617") {
+  const encodedData = encodeURIComponent(data);
+  return `https://api.qrserver.com/v1/create-qr-code/?size=${size}&data=${encodedData}&color=${color}&bgcolor=${bgcolor}`;
 }

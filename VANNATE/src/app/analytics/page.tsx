@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useEffect, useRef } from "react";
 
 const kpis = [
@@ -45,43 +45,60 @@ export default function AnalyticsPage() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-    const W = canvas.width, H = canvas.height;
-    const maxY = Math.max(...chartData);
-    ctx.clearRect(0, 0, W, H);
-    ctx.strokeStyle = "rgba(255,255,255,0.05)";
-    ctx.lineWidth = 1;
-    for (let i = 0; i < 5; i++) {
-      const y = (H / 5) * i;
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+
+    function draw() {
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      // Set real pixel dimensions from layout
+      canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+      canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      const W = canvas.offsetWidth;
+      const H = canvas.offsetHeight;
+      const maxY = Math.max(...chartData);
+      ctx.clearRect(0, 0, W, H);
+      // Grid lines
+      ctx.strokeStyle = "rgba(255,255,255,0.05)";
+      ctx.lineWidth = 1;
+      for (let i = 0; i < 5; i++) {
+        const y = (H / 5) * i;
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+      // Area fill
+      const grad = ctx.createLinearGradient(0, 0, 0, H);
+      grad.addColorStop(0, "rgba(20,184,166,0.35)");
+      grad.addColorStop(1, "rgba(20,184,166,0)");
+      ctx.beginPath();
+      chartData.forEach((v, i) => {
+        const x = (W / (chartData.length - 1)) * i;
+        const y = H - (v / maxY) * H * 0.85 - 10;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+      ctx.fillStyle = grad; ctx.fill();
+      // Line
+      ctx.beginPath();
+      chartData.forEach((v, i) => {
+        const x = (W / (chartData.length - 1)) * i;
+        const y = H - (v / maxY) * H * 0.85 - 10;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.strokeStyle = "#14b8a6"; ctx.lineWidth = 2.5; ctx.stroke();
+      // Dots
+      chartData.forEach((v, i) => {
+        const x = (W / (chartData.length - 1)) * i;
+        const y = H - (v / maxY) * H * 0.85 - 10;
+        ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2);
+        ctx.fillStyle = "#14b8a6"; ctx.fill();
+      });
     }
-    const grad = ctx.createLinearGradient(0, 0, 0, H);
-    grad.addColorStop(0, "rgba(20,184,166,0.35)");
-    grad.addColorStop(1, "rgba(20,184,166,0)");
-    ctx.beginPath();
-    chartData.forEach((v, i) => {
-      const x = (W / (chartData.length - 1)) * i;
-      const y = H - (v / maxY) * H * 0.85 - 10;
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    });
-    ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
-    ctx.fillStyle = grad; ctx.fill();
-    ctx.beginPath();
-    chartData.forEach((v, i) => {
-      const x = (W / (chartData.length - 1)) * i;
-      const y = H - (v / maxY) * H * 0.85 - 10;
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    });
-    ctx.strokeStyle = "#14b8a6"; ctx.lineWidth = 2.5; ctx.stroke();
-    chartData.forEach((v, i) => {
-      const x = (W / (chartData.length - 1)) * i;
-      const y = H - (v / maxY) * H * 0.85 - 10;
-      ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2);
-      ctx.fillStyle = "#14b8a6"; ctx.fill();
-    });
+
+    // Use ResizeObserver so we draw only when canvas has real layout dimensions
+    const ro = new ResizeObserver(() => draw());
+    ro.observe(canvas);
+    draw();
+    return () => ro.disconnect();
   }, []);
 
   return (

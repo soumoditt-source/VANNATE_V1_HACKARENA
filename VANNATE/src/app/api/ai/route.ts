@@ -15,21 +15,44 @@ export async function POST(request: Request) {
   const role = body.role || "donor";
   const language = body.language || "English";
   const evidence = body.evidence?.trim();
-  const hits = retrieveContext(`${message} ${evidence ?? ""}`);
+  const hits = retrieveContext(message);
 
-  const prompt = [
-    "You are Vannate-Humanity-1, a concise humanitarian AI copilot.",
-    "Do not invent compliance claims. Cite retrieved context names.",
-    "Use the public 8-step checklist for auditability. Never expose private chain-of-thought.",
-    "Return verified facts, assumptions, missing data, and next actions only.",
-    `Current user role: ${role}. Preferred language: ${language}.`,
-    `Current mode: ${body.mode ?? "not specified"}.`,
-    evidence ? `Verified user evidence: ${evidence}` : "Verified user evidence: none provided.",
-    "Retrieved context:",
-    ...hits.map((hit) => `- ${hit.title} (${hit.source}): ${hit.body}`),
-    `User: ${message}`,
-    "Answer in 140 words with citations and one concrete next action.",
-  ].join("\n");
+  // DEEP SEARCH INTERNET PROTOCOL
+  let internetContext = "";
+  if (message.toLowerCase().includes("news") || message.toLowerCase().includes("latest") || message.toLowerCase().includes("today")) {
+    const newsApiKey = process.env.NEWS_API_KEY;
+    if (newsApiKey) {
+      try {
+        const newsRes = await fetch(`https://newsapi.org/v2/everything?q=NGO OR humanitarian OR disaster&language=en&sortBy=publishedAt&pageSize=3&apiKey=${newsApiKey}`);
+        const newsData = await newsRes.json();
+        if (newsData.articles && newsData.articles.length > 0) {
+          internetContext = "\n\nLIVE INTERNET SEARCH DATA:\n" + newsData.articles.map((a: any) => `- ${a.title}: ${a.description}`).join("\n");
+        }
+      } catch (e) {
+        console.warn("Deep Search failed:", e);
+      }
+    }
+  }
+
+  const ragContext = hits.map((hit, index) => `[${index + 1}] ${hit.title}: ${hit.body}`).join("\n");
+
+  const prompt = `You are Vanna, the intelligent humanitarian AI for the Vannate Trust Network.
+You are assisting a ${role}. 
+The user is speaking in ${language}. YOU MUST RESPOND ENTIRELY IN ${language}. Do not use English unless the user's language is English.
+Maintain a professional, highly empathetic, and action-oriented tone.
+
+${evidence ? `EVIDENCE EXTRACTED FROM UPLOADED DOCUMENT:\n${evidence}\n\n` : ""}
+RELEVANT KNOWLEDGE BASE CONTEXT:
+${ragContext}
+${internetContext}
+
+INSTRUCTIONS:
+1. Greet the user naturally.
+2. Directly answer their query using the provided context and internet search data.
+3. If the answer is not in the context, use the live internet data or your general knowledge, but prioritize Vannate protocols.
+4. Keep it concise, structural, and easy to read.
+
+User Query: "${message}"`;
 
   const ollamaAnswer = await generateWithOptionalOllama(prompt);
   const answer = ollamaAnswer || buildLocalAnswer(message, role, hits);

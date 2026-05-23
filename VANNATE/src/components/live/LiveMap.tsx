@@ -1,24 +1,17 @@
+"use client";
+
+import dynamic from "next/dynamic";
 import { liveMarkers, type LiveMarker } from "@/lib/live";
+import { useEffect, useState } from "react";
+
+// Dynamically import Leaflet so it doesn't crash on SSR
+const LeafletLiveMap = dynamic(() => import("./LeafletLiveMap"), { ssr: false, loading: () => <div className="live-map-canvas" style={{display:'flex', alignItems:'center', justifyContent:'center'}}>Loading Live Radar...</div> });
 
 type LiveMapProps = {
   title: string;
   layer?: "all" | "blood" | "incident";
   markers?: LiveMarker[];
 };
-
-function markerPosition(marker: LiveMarker) {
-  const minLat = 22.52;
-  const maxLat = 22.62;
-  const minLng = 88.24;
-  const maxLng = 88.44;
-  const x = ((marker.lng - minLng) / (maxLng - minLng)) * 100;
-  const y = 100 - ((marker.lat - minLat) / (maxLat - minLat)) * 100;
-
-  return {
-    left: `${Math.min(92, Math.max(6, x))}%`,
-    top: `${Math.min(88, Math.max(10, y))}%`,
-  };
-}
 
 function matchesLayer(marker: LiveMarker, layer: LiveMapProps["layer"]) {
   if (!layer || layer === "all") return true;
@@ -27,33 +20,30 @@ function matchesLayer(marker: LiveMarker, layer: LiveMapProps["layer"]) {
 }
 
 export default function LiveMap({ title, layer = "all", markers = liveMarkers }: LiveMapProps) {
+  const [mounted, setMounted] = useState(false);
   const visibleMarkers = markers.filter((marker) => matchesLayer(marker, layer));
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <div className="live-map-shell">
       <div className="live-map-head">
         <div>
           <h3>{title}</h3>
-          <p>OpenStreetMap-ready feed. Connect routing keys later; demo coordinates work now.</p>
+          <p>Leaflet Engine Active • Live OpenStreetMap Overlay</p>
         </div>
-        <span className="live-pill">LIVE API READY</span>
+        <span className="live-pill" style={{ background: "rgba(20, 184, 166, 0.2)", color: "var(--teal)", border: "1px solid var(--teal)" }}>
+          LIVE RADAR
+        </span>
       </div>
-      <div className="live-map-canvas" aria-label={`${title} live map`}>
-        <div className="live-map-tiles" />
-        <div className="live-map-route" />
-        {visibleMarkers.map((marker) => (
-          <div
-            key={marker.id}
-            className={`live-marker ${marker.severity} ${marker.kind}`}
-            style={markerPosition(marker)}
-            title={`${marker.label} - ${marker.status}`}
-          >
-            <span />
-            <strong>{marker.label}</strong>
-            <em>{marker.eta ?? marker.status}</em>
-          </div>
-        ))}
+      
+      {/* Map Container */}
+      <div style={{ width: "100%", height: "400px", borderRadius: "12px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)" }}>
+        {mounted && <LeafletLiveMap markers={visibleMarkers} />}
       </div>
+
       <div className="live-map-feed">
         {visibleMarkers.map((marker) => (
           <div key={marker.id}>

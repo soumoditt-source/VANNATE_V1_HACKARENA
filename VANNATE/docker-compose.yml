@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  vannate:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./public/uploads:/app/public/uploads

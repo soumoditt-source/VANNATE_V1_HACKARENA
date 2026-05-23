@@ -1,15 +1,36 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { campaigns, activeDonation } from "@/lib/data";
 import { generateHumanitarianIds, generateUserIdentity } from "@/lib/id";
+import AIVoiceAssistant from "@/components/ui/AIVoiceAssistant";
 import QRCode from "react-qr-code";
-
 export default function DashboardPage() {
-  const [did] = useState(() => generateHumanitarianIds("108").donorId);
-  const [identity] = useState(() => generateUserIdentity("citizen", "Demo Donor"));
+  const [mounted, setMounted] = useState(false);
+  const [did, setDid] = useState("");
+  const [identity, setIdentity] = useState({ accountId: "", qrImageUrl: "" });
   const [donating, setDonating] = useState(false);
   const [donated, setDonated] = useState<string | null>(null);
   const [amount, setAmount] = useState("500");
+
+  useEffect(() => {
+    setMounted(true);
+    setDid(generateHumanitarianIds("108").donorId);
+    let currentUser = { role: "citizen", name: "Demo Donor" };
+    const savedUser = window.localStorage.getItem("vannate-user");
+    if (savedUser) {
+      try {
+        const user = JSON.parse(savedUser);
+        currentUser = { role: user.role || "citizen", name: user.name || "Demo Donor" };
+      } catch (e) {
+        console.error("Failed to parse user session");
+      }
+    }
+    setIdentity(generateUserIdentity(currentUser.role as any, currentUser.name));
+  }, []);
+
+  if (!mounted) {
+    return <div className="page-shell" style={{ height: "100vh", background: "var(--bg-main)" }} />;
+  }
 
   async function handleDonate(campaignId: string) {
     setDonating(true);
@@ -38,7 +59,7 @@ export default function DashboardPage() {
             <p>Every donation you make is verified, routed, and confirmed with QR-backed proof. Your trust score grows with each impact.</p>
           </div>
           <div className="card" style={{ padding: 16, background: "white", borderRadius: 12, boxShadow: "0 10px 30px rgba(0,0,0,0.1)", display: "flex", flexDirection: "column", alignItems: "center" }}>
-             <QRCode value={identity.qrPayload} size={110} bgColor="#ffffff" fgColor="#000000" level="Q" />
+             <img src={identity.qrImageUrl} alt="Vannate Identity QR" style={{ width: 150, height: 150, objectFit: 'contain', borderRadius: 8 }} />
              <span style={{ fontSize: "0.7rem", fontFamily: "monospace", color: "#666", marginTop: 8 }}>{identity.accountId}</span>
           </div>
         </div>
@@ -55,16 +76,21 @@ export default function DashboardPage() {
           )}
 
           <div className="dash-grid">
-            <div className="sidebar">
+            <div className="sidebar" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+              <AIVoiceAssistant />
               <div className="card card-sm">
                 <div style={{ fontWeight: 700, marginBottom: 16, color: "var(--teal)", fontSize: "0.82rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>Your QR Identity</div>
-                <div className="qr-box" style={{ margin: "0 auto 16px" }}>
-                  {Array.from({ length: 64 }).map((_, i) => (
-                    <div key={i} className={`qr-cell${[0,2,4,7,9,14,16,20,23,27,31,35,38,42,46,50,55,58,61].includes(i) ? " on" : ""}`} />
-                  ))}
+                <div className="qr-box" style={{ margin: "0 auto 16px", padding: 16, background: 'white', borderRadius: 12, display: 'inline-block' }}>
+                  <QRCode 
+                    value={did} 
+                    size={150}
+                    level="H" // High error correction
+                    bgColor="#ffffff"
+                    fgColor="#0f172a"
+                  />
                 </div>
                 <div style={{ textAlign: "center" }}>
-                  <div style={{ fontFamily: "monospace", fontWeight: 700, fontSize: "1.1rem" }}>{did}</div>
+                  <div style={{ fontSize: "1.2rem", fontWeight: 700, letterSpacing: "0.1em", fontFamily: "monospace", color: "var(--text-main)" }}>{did}</div>
                   <div style={{ fontFamily: "monospace", fontSize: "0.72rem", color: "var(--text-muted)", marginTop: 6 }}>{identity.accountId}</div>
                   <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: 6 }}>Kolkata Relief Foundation</div>
                   <div className="badge badge-teal" style={{ margin: "10px auto 0", display: "inline-flex" }}>Verified Donor</div>

@@ -1,29 +1,33 @@
-﻿# Technical Architecture & Development Log
+# Vannate Technical Architecture & Strategy
 
-## Architecture Overview
-Vannate uses a multi-page routing structure with Next.js App Router for optimal SEO and separate chunk boundaries for heavy components.
-* `/app/page.tsx`: Animated hero with `ParticleCanvas` and platform pillars.
-* `/app/dashboard/page.tsx`: Donor interface and active donation route tracking.
-* `/app/crisis/page.tsx`: Crisis command center with custom SVG heatmaps.
-* `/app/blood/page.tsx`: Inventory tracking and AI donor finder.
-* `/app/ngo/page.tsx`: Operations hub with RAG AI drafting tools.
-* `/app/volunteer/page.tsx`: Live skill dispatch network.
-* `/app/copilot/page.tsx`: The "Vanna" AI assistant with `SpeechRecognition` implementation.
-* `/app/analytics/page.tsx`: HTML5 Canvas rendering for live data charts and SDG progress.
+## Core Philosophy: Edge AI & Decentralized Compute
+Vannate relies heavily on a hybrid architecture that pushes computation to the edge (the user's browser) while maintaining rigorous data consistency via centralized, specialized microservices. This drastically cuts server costs, enabling the "User-Pays" API model powered by frameworks like `Puter.js`.
 
-## Backend APIs
-Microservice-ready API endpoints (`/app/api/...`) simulate database interaction:
-* `/api/ai`: RAG retrieval and synthesis.
-* `/api/blood`: Donor matching and hospital alerting.
-* `/api/volunteers`: Dispatch logic.
-* `/api/emergency`: Crisis zone activation.
-* `/api/analytics`: Impact KPI aggregation.
+## System Components
 
-## Theming & UI
-* No external UI libraries were used (no Tailwind). All styling is driven by `src/app/globals.css`.
-* Heavy use of CSS variables, `backdrop-filter` for glassmorphism, and keyframe animations (`blink`, `float`).
+### 1. Frontend Layer
+- **Framework:** Next.js 14 App Router.
+- **State Management:** React Hooks (`useState`, `useRef`, `useCallback`) alongside local storage for persistent user states, mitigating SSR hydration mismatches via strict `mounted` lifecycle checks.
+- **3D Rendering:** Three.js integrated via `react-three-fiber` and raw canvas rendering for high-performance physics simulations (e.g., `DynamicInteractive3DScroll.tsx`, `FallingIconsPhysics.tsx`).
+- **Styling:** CSS Modules and Global CSS using variables for dynamic theming (Dark/Light modes).
 
-## Build Verification
-* Successfully passes `npm run build` with `0` type errors.
-* Dynamic routes (`/track/[id]`) correctly typed.
-* TypeScript configured strictly for all components.
+### 2. Map & Geolocation Layer
+- **Google Maps API:** Utilized via `@react-google-maps/api`.
+- **Modes:** Hybrid Satellite & Street View enabled dynamically.
+- **Routing:** A* pathfinding algorithm (`src/lib/algorithms/pathfinding.ts`) overlays shortest paths for disaster resource distribution, complemented by real-time Directions API for walking distances.
+
+### 3. AI & Machine Learning Pipeline
+- **Edge ML (Client-Side):** TensorFlow.js is pinned to the CPU backend to prevent GPU context loss issues, predicting sector demand and crisis resource depletion.
+- **Backend ML:** Pre-trained Python Scikit-Learn models (`demand_model.pkl`) process heavy analytics via API endpoints.
+- **Multimodal AI Integration:** 
+    - **LLM Reasoning:** Mistral and Groq APIs power the Vanna Copilot for complex multi-language Q&A and RAG logic.
+    - **TTS Voice:** Sarvam API for localized Indian language generation and native `SpeechSynthesis` API fallback. Handled by a robust audio queuing system (`useAITTS.ts`).
+    - **OCR:** Integrated with `OCR.space` for keyless text extraction from NGO receipts and medical requests.
+
+### 4. CRM & Identity
+- **Dynamic Identity Generation:** Unique cryptographic QR code generation via external APIs for instantaneous validation of Donors, NGOs, and Volunteers (`src/lib/id.ts`).
+- **Security:** CSRF tokens, strict validation of JSON payloads, and dynamic routing to handle different roles (Citizen, NGO Ops, Emergency Command).
+
+## Deployment & Hosting
+- Designed for Vercel/Netlify environments.
+- Environmental variables inject secure API endpoints natively without exposing primary tokens to the client.

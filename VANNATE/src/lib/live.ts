@@ -30,6 +30,9 @@ export const appModes: AppMode[] = [
     links: [
       { href: "/dashboard", label: "Donor Home" },
       { href: "/blood", label: "Blood Help" },
+      { href: "/verify", label: "Verify Donation" },
+      { href: "/track", label: "Track Donation" },
+      { href: "/community", label: "Community" },
       { href: "/copilot", label: "Ask Vanna" },
       { href: "/analytics", label: "Impact" },
     ],
@@ -41,7 +44,10 @@ export const appModes: AppMode[] = [
     summary: "NGO automation, volunteers, reports, grants, and trust operations.",
     links: [
       { href: "/ngo", label: "NGO Desk" },
+      { href: "/trust", label: "Trust Engine" },
+      { href: "/verify", label: "Verification Flow" },
       { href: "/volunteer", label: "Volunteers" },
+      { href: "/community", label: "Community" },
       { href: "/analytics", label: "Reports" },
       { href: "/copilot", label: "NGO Copilot" },
     ],
@@ -54,6 +60,10 @@ export const appModes: AppMode[] = [
     links: [
       { href: "/crisis", label: "Incidents" },
       { href: "/blood", label: "Blood Bank" },
+      { href: "/trust", label: "Trust Engine" },
+      { href: "/verify", label: "Verification Flow" },
+      { href: "/track", label: "Live Tracking" },
+      { href: "/community", label: "Feed" },
       { href: "/volunteer", label: "Dispatch" },
       { href: "/analytics", label: "Live KPIs" },
       { href: "/copilot", label: "Command AI" },
