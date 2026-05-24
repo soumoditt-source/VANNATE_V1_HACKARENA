@@ -368,12 +368,15 @@ export default function VerificationFlowPage() {
                       </div>
                     ) : (
                       <div style={{ background: "#000", borderRadius: 12, overflow: "hidden" }}>
-                        <video 
-                          ref={videoRef} 
-                          autoPlay 
-                          playsInline
-                          style={{ width: "100%", display: "block" }}
-                        />
+                        {cameraActive && (
+                          <video 
+                            ref={videoRef} 
+                            autoPlay 
+                            playsInline
+                            muted
+                            style={{ width: "100%", display: "block" }}
+                          />
+                        )}
                         <canvas ref={canvasRef} style={{ display: "none" }} width={640} height={480} />
                         <div style={{ display: "flex", gap: 12, padding: 16 }}>
                           <button className="btn-primary" style={{ flex: 1 }} onClick={capturePhoto}>
